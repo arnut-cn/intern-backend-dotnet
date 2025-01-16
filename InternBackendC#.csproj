@@ -24,7 +24,6 @@
 
 	<ItemGroup>
 	  <Folder Include="BusinessLogics\Team\" />
-	  <Folder Include="ViewModels\Employee\" />
 	</ItemGroup>
 
 </Project>

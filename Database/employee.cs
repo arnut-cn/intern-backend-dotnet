@@ -15,7 +15,7 @@ public partial class employee
 
     public string date_of_birth { get; set; }
 
-    public int? is_enable { get; set; }
+    public bool is_enable { get; set; }
 
     public string team_id { get; set; }
 

@@ -1,4 +1,6 @@
-using InternBackendC_.Database;
+using InternBackendC_.BusinessLogics.Position;
+using InternBackendC_.ViewModels.Shared;
+using InternBackendC_.ViewModels.Employee;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InternBackendC_.Controllers
@@ -9,18 +11,42 @@ namespace InternBackendC_.Controllers
     {
         private readonly ILogger<EmployeeController> _logger;
 
-        private readonly AppDbContext _context;
+        private readonly EmployeeBusinessLogic positionBusinessLogic;
 
-        public EmployeeController(ILogger<EmployeeController> logger, AppDbContext context)
+        public EmployeeController(ILogger<EmployeeController> logger, EmployeeBusinessLogic positionBusinessLogic)
         {
             _logger = logger;
-            _context = context;
+            this.positionBusinessLogic = positionBusinessLogic;
+        }
+
+        [HttpPost]
+        public async Task<PagedDataResult<EmployeeQueryResponse>> Index([FromBody] PagedDataQuery<EmployeeQueryRequest> req)
+        {
+            return await positionBusinessLogic.Index(req);
+        }
+
+        [HttpPost]
+        public async Task<string> Create([FromBody] EmployeeCreateRequest req)
+        {
+            return await positionBusinessLogic.Create(req);
+        }
+
+        [HttpPost]
+        public async Task<string> Update([FromBody] EmployeeUpdateRequest req)
+        {
+            return await positionBusinessLogic.Update(req);
         }
 
         [HttpGet]
-        public IEnumerable<employee> Index()
+        public async Task<EmployeeGetDetailResponse> GetDetail([FromQuery] string id)
         {
-            return _context.employees.Where(x => x.is_enable == 1).ToList();
+            return await positionBusinessLogic.GetDetail(id);
+        }
+
+        [HttpPost]
+        public async Task Delete([FromBody] string id)
+        {
+            await positionBusinessLogic.Delete(id);
         }
     }
 }

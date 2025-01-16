@@ -1,0 +1,175 @@
+﻿using InternBackendC_.Database;
+using InternBackendC_.ViewModels.Shared;
+using InternBackendC_.ViewModels.Employee;
+using Microsoft.EntityFrameworkCore;
+
+namespace InternBackendC_.BusinessLogics.Position
+
+{
+    public class EmployeeBusinessLogic
+    {
+        private readonly AppDbContext context;
+        private readonly ILogger<EmployeeBusinessLogic> _logger;
+
+        public EmployeeBusinessLogic(AppDbContext context, ILogger<EmployeeBusinessLogic> logger)
+        {
+            this.context = context;
+            _logger = logger;
+        }
+
+        public async Task<PagedDataResult<EmployeeQueryResponse>> Index(PagedDataQuery<EmployeeQueryRequest> query)
+        {
+            try
+            {
+                var iQueryable = context.employees.Where(w => w.is_enable);
+
+                if (query.search != null)
+                {
+                    var search = query.search;
+                    iQueryable = iQueryable.Where(w =>
+                    (string.IsNullOrEmpty(search.text)
+                    || w.firstname.ToLower().Contains(search.text.ToLower())
+                    || w.lastname.ToLower().Contains(search.text.ToLower())
+                    || w.email.ToLower().Contains(search.text.ToLower()))
+                    && (string.IsNullOrEmpty(search.positionId) || w.position_id == search.positionId)
+                    && (string.IsNullOrEmpty(search.teamId) || w.team_id == search.teamId)
+                    );
+                }
+
+                var rowCount = await iQueryable.CountAsync();
+
+                int num = query.pageIndex * query.pageSize;
+                if (num > 0)
+                    iQueryable = iQueryable.Skip(num).Take(query.pageSize);
+
+                var data = await iQueryable.Select(s => new EmployeeQueryResponse
+                {
+                    employeeId = s.employee_id,
+                    firstname = s.firstname,
+                    lastname = s.lastname,
+                    dateOfBirth = s.date_of_birth,
+                    email = s.email,
+                    positionId = s.position_id,
+                    teamId = s.team_id,
+                    phones = s.phones.Select(s => new PhoneModel
+                    {
+                        phoneId = s.phone_id,
+                        phoneNumber = s.phone_number
+                    }).ToList()
+                }).ToListAsync();
+
+                return new PagedDataResult<EmployeeQueryResponse>()
+                {
+                    pageSize = query.pageSize,
+                    pageIndex = query.pageIndex,
+                    rowCount = rowCount,
+                    data = data
+                };
+            }
+            catch (Exception ex)
+            {
+                return new PagedDataResult<EmployeeQueryResponse>();
+            }
+        }
+
+        public async Task<string> Create(EmployeeCreateRequest request)
+        {
+            try
+            {
+                var entity = new employee
+                {
+                    employee_id = new Guid().ToString(),
+                    firstname = request.firstname,
+                    lastname = request.lastname,
+                    date_of_birth = request.dateOfBirth,
+                    email = request.email,
+                    position_id = request.positionId,
+                    team_id = request.teamId,
+                    is_enable = true,
+                };
+
+                await context.employees.AddAsync(entity);
+                await context.SaveChangesAsync();
+
+                return entity.position_id;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<string> Update(EmployeeUpdateRequest request)
+        {
+            try
+            {
+                var entity = await context.employees.Where(w => w.is_enable && w.position_id == request.employeeIdId).SingleAsync();
+
+                entity.firstname = request.firstname;
+                entity.lastname = request.lastname;
+                entity.date_of_birth = request.dateOfBirth;
+                entity.email = request.email;
+                entity.position_id = request.positionId;
+                entity.team_id = request.teamId;
+
+                await context.SaveChangesAsync();
+
+                return entity.position_id;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task<EmployeeGetDetailResponse> GetDetail(string id)
+        {
+            try
+            {
+                var model = await context.employees
+                    .Where(w => w.is_enable && w.position_id == id)
+                    .Select(s => new EmployeeGetDetailResponse
+                    {
+                        employeeIdId = s.position_id,
+                        firstname = s.firstname,
+                        lastname = s.lastname,
+                        dateOfBirth = s.date_of_birth,
+                        email = s.email,
+                        positionId = s.position_id,
+                        teamId = s.team_id,
+                        phones = s.phones.Select(s => new PhoneModel
+                        {
+                            phoneId = s.phone_id,
+                            phoneNumber = s.phone_number
+                        }).ToList()
+
+                    })
+                    .SingleAsync();
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+        public async Task Delete(string id)
+        {
+            try
+            {
+                var entity = await context.employees
+                    .Where(w => w.is_enable && w.employee_id == id)
+                    .SingleAsync();
+
+                context.employees.Remove(entity);
+                await context.SaveChangesAsync();
+
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+    }
+}
