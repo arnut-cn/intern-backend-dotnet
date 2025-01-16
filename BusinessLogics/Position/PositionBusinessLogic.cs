@@ -1,26 +1,27 @@
 ﻿using InternBackendC_.Database;
 using InternBackendC_.ViewModels.Shared;
-using InternBackendC_.ViewModels.Team;
+using InternBackendC_.ViewModels.Position;
 using Microsoft.EntityFrameworkCore;
 
-namespace InternBackendC_.BusinessLogics.Team
+namespace InternBackendC_.BusinessLogics.Position
+
 {
-    public class TeamBusinessLogic
+    public class PositionBusinessLogic
     {
         private readonly AppDbContext context;
-        private readonly ILogger<TeamBusinessLogic> _logger;
+        private readonly ILogger<PositionBusinessLogic> _logger;
 
-        public TeamBusinessLogic(AppDbContext context, ILogger<TeamBusinessLogic> logger)
+        public PositionBusinessLogic(AppDbContext context, ILogger<PositionBusinessLogic> logger)
         {
             this.context = context;
             _logger = logger;
         }
 
-        public async Task<PagedDataResult<TeamQueryResponse>> Index(PagedDataQuery<TeamQueryRequest> query)
+        public async Task<PagedDataResult<PositionQueryResponse>> Index(PagedDataQuery<PositionQueryRequest> query)
         {
             try
             {
-                var iQueryable = context.teams.Where(w => w.is_enable);
+                var iQueryable = context.positions.Where(w => w.is_enable);
 
                 if (query.search != null)
                 {
@@ -34,14 +35,14 @@ namespace InternBackendC_.BusinessLogics.Team
                 if (num > 0)
                     iQueryable = iQueryable.Skip(num).Take(query.pageSize);
 
-                var data = await iQueryable.Select(s => new TeamQueryResponse
+                var data = await iQueryable.Select(s => new PositionQueryResponse
                 {
-                    teamId = s.team_id,
+                    positionId = s.position_id,
                     name = s.name,
                     description = s.description,
                 }).ToListAsync();
 
-                return new PagedDataResult<TeamQueryResponse>()
+                return new PagedDataResult<PositionQueryResponse>()
                 {
                     pageSize = query.pageSize,
                     pageIndex = query.pageIndex,
@@ -51,26 +52,26 @@ namespace InternBackendC_.BusinessLogics.Team
             }
             catch (Exception ex)
             {
-                return new PagedDataResult<TeamQueryResponse>();
+                return new PagedDataResult<PositionQueryResponse>();
             }
         }
 
-        public async Task<string> Create(TeamCreateRequest request)
+        public async Task<string> Create(PositionCreateRequest request)
         {
             try
             {
-                var entity = new team
+                var entity = new position
                 {
-                    team_id = new Guid().ToString(),
+                    position_id = new Guid().ToString(),
                     name = request.name,
                     description = request.description,
                     is_enable = true,
                 };
 
-                await context.teams.AddAsync(entity);
+                await context.positions.AddAsync(entity);
                 await context.SaveChangesAsync();
 
-                return entity.team_id;
+                return entity.position_id;
             }
             catch (Exception ex)
             {
@@ -78,18 +79,18 @@ namespace InternBackendC_.BusinessLogics.Team
             }
         }
 
-        public async Task<string> Update(TeamUpdateRequest request)
+        public async Task<string> Update(PositionUpdateRequest request)
         {
             try
             {
-                var entity = await context.teams.Where(w => w.is_enable && w.team_id == request.teamId).SingleAsync();
+                var entity = await context.positions.Where(w => w.is_enable && w.position_id == request.positionId).SingleAsync();
 
                 entity.name = request.name;
                 entity.description = request.description;
 
                 await context.SaveChangesAsync();
 
-                return entity.team_id;
+                return entity.position_id;
             }
             catch (Exception ex)
             {
@@ -97,15 +98,15 @@ namespace InternBackendC_.BusinessLogics.Team
             }
         }
 
-        public async Task<TeamGetDetailResponse> GetDetail(string id)
+        public async Task<PositionGetDetailResponse> GetDetail(string id)
         {
             try
             {
-                var model = await context.teams
-                    .Where(w => w.is_enable && w.team_id == id)
-                    .Select(s => new TeamGetDetailResponse
+                var model = await context.positions
+                    .Where(w => w.is_enable && w.position_id == id)
+                    .Select(s => new PositionGetDetailResponse
                     {
-                        teamId = s.team_id,
+                        positionId = s.position_id,
                         name = s.name,
                         description = s.description,
 
@@ -124,11 +125,11 @@ namespace InternBackendC_.BusinessLogics.Team
         {
             try
             {
-                var entity = await context.teams
-                    .Where(w => w.is_enable && w.team_id == id)
+                var entity = await context.positions
+                    .Where(w => w.is_enable && w.position_id == id)
                     .SingleAsync();
 
-                context.teams.Remove(entity);
+                context.positions.Remove(entity);
                 await context.SaveChangesAsync();
 
             }
@@ -141,11 +142,11 @@ namespace InternBackendC_.BusinessLogics.Team
         {
             try
             {
-                var list = await context.teams
+                var list = await context.positions
                     .Where(w => w.is_enable)
                     .Select(s => new DropdownViewModel<string>
                     {
-                        value = s.team_id,
+                        value = s.position_id,
                         text = s.name
                     })
                     .ToListAsync();

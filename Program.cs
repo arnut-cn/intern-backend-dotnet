@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using InternBackendC_.Database;
 using InternBackendC_.BusinessLogics.Team;
+using InternBackendC_.BusinessLogics.Position;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddScoped<TeamBusinessLogic>();
+builder.Services.AddScoped<PositionBusinessLogic>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>

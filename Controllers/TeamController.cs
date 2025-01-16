@@ -26,19 +26,19 @@ namespace InternBackendC_.Controllers
         }
 
         [HttpPost]
-        public async Task<string> Create([FromBody] CreateRequest req)
+        public async Task<string> Create([FromBody] TeamCreateRequest req)
         {
             return await teamBusinessLogic.Create(req);
         }
 
         [HttpPost]
-        public async Task<string> Update([FromBody] UpdateRequest req)
+        public async Task<string> Update([FromBody] TeamUpdateRequest req)
         {
             return await teamBusinessLogic.Update(req);
         }
 
         [HttpGet]
-        public async Task<GetDetailResponse> GetDetail([FromQuery] string id)
+        public async Task<TeamGetDetailResponse> GetDetail([FromQuery] string id)
         {
             return await teamBusinessLogic.GetDetail(id);
         }

@@ -1,4 +1,6 @@
-using InternBackendC_.Database;
+using InternBackendC_.BusinessLogics.Position;
+using InternBackendC_.ViewModels.Shared;
+using InternBackendC_.ViewModels.Position;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InternBackendC_.Controllers
@@ -9,18 +11,48 @@ namespace InternBackendC_.Controllers
     {
         private readonly ILogger<PositionController> _logger;
 
-        private readonly AppDbContext _context;
+        private readonly PositionBusinessLogic positionBusinessLogic;
 
-        public PositionController(ILogger<PositionController> logger, AppDbContext context)
+        public PositionController(ILogger<PositionController> logger, PositionBusinessLogic positionBusinessLogic)
         {
             _logger = logger;
-            _context = context;
+            this.positionBusinessLogic = positionBusinessLogic;
+        }
+
+        [HttpPost]
+        public async Task<PagedDataResult<PositionQueryResponse>> Index([FromBody] PagedDataQuery<PositionQueryRequest> req)
+        {
+            return await positionBusinessLogic.Index(req);
+        }
+
+        [HttpPost]
+        public async Task<string> Create([FromBody] PositionCreateRequest req)
+        {
+            return await positionBusinessLogic.Create(req);
+        }
+
+        [HttpPost]
+        public async Task<string> Update([FromBody] PositionUpdateRequest req)
+        {
+            return await positionBusinessLogic.Update(req);
         }
 
         [HttpGet]
-        public IEnumerable<employee> Index()
+        public async Task<PositionGetDetailResponse> GetDetail([FromQuery] string id)
         {
-            return _context.employees.Where(x => x.is_enable == 1).ToList();
+            return await positionBusinessLogic.GetDetail(id);
+        }
+
+        [HttpPost]
+        public async Task Delete([FromBody] string id)
+        {
+            await positionBusinessLogic.Delete(id);
+        }
+
+        [HttpGet]
+        public async Task<List<DropdownViewModel<string>>> GetPositionDropdown()
+        {
+            return await positionBusinessLogic.GetList();
         }
     }
 }
