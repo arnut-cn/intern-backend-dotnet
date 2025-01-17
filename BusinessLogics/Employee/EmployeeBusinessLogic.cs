@@ -174,7 +174,7 @@ namespace InternBackendC_.BusinessLogics.Position
             try
             {
                 var model = await context.employees
-                    .Where(w => w.is_enable && w.position_id == id)
+                    .Where(w => w.is_enable && w.employee_id == id)
                     .Select(s => new EmployeeGetDetailResponse
                     {
                         employeeIdId = s.position_id,
