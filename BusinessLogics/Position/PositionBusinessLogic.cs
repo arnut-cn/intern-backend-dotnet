@@ -62,7 +62,7 @@ namespace InternBackendC_.BusinessLogics.Position
             {
                 var entity = new position
                 {
-                    position_id = new Guid().ToString(),
+                    position_id = Guid.NewGuid().ToString(),
                     name = request.name,
                     description = request.description,
                     is_enable = true,

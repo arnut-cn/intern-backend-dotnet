@@ -61,7 +61,7 @@ namespace InternBackendC_.BusinessLogics.Team
             {
                 var entity = new team
                 {
-                    team_id = new Guid().ToString(),
+                    team_id = Guid.NewGuid().ToString(),
                     name = request.name,
                     description = request.description,
                     is_enable = true,

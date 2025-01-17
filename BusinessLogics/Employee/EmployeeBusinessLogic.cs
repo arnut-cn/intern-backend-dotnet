@@ -78,7 +78,7 @@ namespace InternBackendC_.BusinessLogics.Position
             {
                 var entity = new employee
                 {
-                    employee_id = new Guid().ToString(),
+                    employee_id = Guid.NewGuid().ToString(),
                     firstname = request.firstname,
                     lastname = request.lastname,
                     date_of_birth = request.dateOfBirth,
