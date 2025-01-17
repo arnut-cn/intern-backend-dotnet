@@ -134,7 +134,7 @@ namespace InternBackendC_.BusinessLogics.Position
             using var transaction = await context.Database.BeginTransactionAsync();
             try
             {
-                var entity = await context.employees.Where(w => w.is_enable && w.position_id == request.employeeIdId).SingleAsync();
+                var entity = await context.employees.Where(w => w.is_enable && w.employee_id == request.employeeIdId).SingleAsync();
 
                 entity.firstname = request.firstname;
                 entity.lastname = request.lastname;
