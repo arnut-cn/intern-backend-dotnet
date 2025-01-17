@@ -14,7 +14,7 @@
 
     public class PhoneModel
     {
-        public string phoneId { get; set; } = null!;
+        public string? phoneId { get; set; } = null!;
         public string phoneNumber { get; set; } = null!;
 
     }
