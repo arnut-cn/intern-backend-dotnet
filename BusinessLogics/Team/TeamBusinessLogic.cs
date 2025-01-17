@@ -31,8 +31,16 @@ namespace InternBackendC_.BusinessLogics.Team
                 var rowCount = await iQueryable.CountAsync();
 
                 int num = query.pageIndex * query.pageSize;
-                if (num > 0)
+                int pageIndex = query.pageIndex;
+                if (num < rowCount)
+                {
                     iQueryable = iQueryable.Skip(num).Take(query.pageSize);
+                }
+                else
+                {
+                    iQueryable = iQueryable.Take(query.pageSize);
+                    pageIndex = 0;
+                }
 
                 var data = await iQueryable.Select(s => new TeamQueryResponse
                 {
@@ -44,7 +52,7 @@ namespace InternBackendC_.BusinessLogics.Team
                 return new PagedDataResult<TeamQueryResponse>()
                 {
                     pageSize = query.pageSize,
-                    pageIndex = query.pageIndex,
+                    pageIndex = pageIndex,
                     rowCount = rowCount,
                     data = data
                 };
