@@ -82,8 +82,12 @@ namespace InternBackendC_.BusinessLogics.Position
 
         public async Task<string> Create(EmployeeCreateRequest request)
         {
+
+            using var transaction = await context.Database.BeginTransactionAsync();
             try
             {
+
+
                 var entity = new employee
                 {
                     employee_id = Guid.NewGuid().ToString(),
@@ -97,6 +101,9 @@ namespace InternBackendC_.BusinessLogics.Position
                 };
 
 
+                await context.employees.AddAsync(entity);
+                await context.SaveChangesAsync();
+
                 foreach (var item in request.phones)
                 {
                     var _phone = new phone
@@ -108,19 +115,23 @@ namespace InternBackendC_.BusinessLogics.Position
                     await context.phones.AddAsync(_phone);
                 }
 
-                await context.employees.AddAsync(entity);
                 await context.SaveChangesAsync();
 
-                return entity.position_id;
+                await transaction.CommitAsync();
+
+                return entity.employee_id;
             }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync();
                 return null;
             }
         }
 
         public async Task<string> Update(EmployeeUpdateRequest request)
         {
+
+            using var transaction = await context.Database.BeginTransactionAsync();
             try
             {
                 var entity = await context.employees.Where(w => w.is_enable && w.position_id == request.employeeIdId).SingleAsync();
@@ -147,11 +158,13 @@ namespace InternBackendC_.BusinessLogics.Position
                 }
 
                 await context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
-                return entity.position_id;
+                return entity.employee_id;
             }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync();
                 return null;
             }
         }
