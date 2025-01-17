@@ -96,6 +96,18 @@ namespace InternBackendC_.BusinessLogics.Position
                     is_enable = true,
                 };
 
+
+                foreach (var item in request.phones)
+                {
+                    var _phone = new phone
+                    {
+                        employee_id = entity.employee_id,
+                        phone_id = Guid.NewGuid().ToString(),
+                        phone_number = item.phoneNumber
+                    };
+                    await context.phones.AddAsync(_phone);
+                }
+
                 await context.employees.AddAsync(entity);
                 await context.SaveChangesAsync();
 
@@ -119,6 +131,20 @@ namespace InternBackendC_.BusinessLogics.Position
                 entity.email = request.email;
                 entity.position_id = request.positionId;
                 entity.team_id = request.teamId;
+
+                var oldPhone = await context.phones.Where(w => w.employee_id == entity.employee_id).ToListAsync();
+                context.phones.RemoveRange(oldPhone);
+
+                foreach (var item in request.phones)
+                {
+                    var _phone = new phone
+                    {
+                        employee_id = entity.employee_id,
+                        phone_id = Guid.NewGuid().ToString(),
+                        phone_number = item.phoneNumber
+                    };
+                    await context.phones.AddAsync(_phone);
+                }
 
                 await context.SaveChangesAsync();
 
