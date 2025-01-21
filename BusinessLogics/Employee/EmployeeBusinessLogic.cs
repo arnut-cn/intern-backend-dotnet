@@ -209,7 +209,8 @@ namespace InternBackendC_.BusinessLogics.Position
                     .Where(w => w.is_enable && w.employee_id == id)
                     .SingleAsync();
 
-                context.employees.Remove(entity);
+                entity.is_enable = false;
+
                 await context.SaveChangesAsync();
 
             }
